@@ -1,10 +1,8 @@
-const { type } = require("express/lib/response");
-
-const mongoose = require(mongoose);
+import mongoose from "mongoose";
 
 const movieSchema = new mongoose.Schema({
     title : {
-        type: String , required: true,
+        type: String , required: true, unique: true,
     },
     director: {
         type: String , required: true,
