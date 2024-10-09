@@ -1,0 +1,102 @@
+import express from 'express';
+import mongoose, { isValidObjectId } from 'mongoose';
+import bodyParser from 'body-parser';
+import movie from './model/movie.js';
+import cors from 'cors';
+
+
+const app = express();
+
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(cors());
+
+app.use(express.urlencoded({ extended: true}));
+
+mongoose.connect('mongodb+srv://daisysarma20:WZqayT7Twe9hjPDP@cluster0.juzlr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => console.log("Database connected successfully")).catch((err) => console.log("Database is not connected", err));
+
+
+//Create a new movie
+app.post('/movie', async (req, res) => {
+    try {
+        const existingMovie = await movie.findOne({ title: req.body.title })
+        if (existingMovie) {
+            return res.status(409).json("Movie with this name already exist !");
+        }
+
+        const newMovie = new movie(req.body);
+        const saveMovie = await newMovie.save();
+        res.status(201).json(saveMovie);
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+//Read operation to fetch all movie
+app.get('/movie', async (req, res) => {
+    try {
+        const findMovies = await movie.find();
+        res.json(findMovies);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log(error);
+
+    }
+});
+
+//Read operation to fetch only one movie
+app.get('/movie/:id', async (req, res) => {
+    const ID = req.params.id;
+        if(!mongoose.Types.ObjectId.isValid(ID)){
+           return res.status(400).json({error: "Invalid movie ID"}) 
+        }
+    try {
+        const Movie = await movie.findById(ID);
+        res.json(Movie);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log(error);
+                
+    }
+});
+
+//update operation using movie id
+app.put('/movie/:id', async(req, res)=>{
+    try{
+     const updateMovie = await movie.findByIdAndUpdate(req.params.id, req.body, ({new: true}));
+     res.json(updateMovie);
+    }
+    catch(error){
+      res.status(500).json({ message: error.message});
+    }
+})
+
+//delete operation using movie id
+app.delete('/movie/:id', async(req, res)=>{
+    try{
+    const deleteMovie = await movie.findByIdAndDelete(req.params.id);
+    res.status(200).json(deleteMovie);
+    }
+    catch(error){
+        res.status(500).json({message: error.message});
+    }
+})
+
+
+const PORT = 5000;
+app.listen(PORT, () => {
+    console.log(`App is running on port ${PORT}`);
+})
+
+
+
+
+
+
+
