@@ -5,7 +5,7 @@
   "main": "server.mjs",
   "type": "module",
   "scripts": {
-    "test": "jest --testTimeout=30000",
+    "test": "jest --detectOpenHandles",
     "start": "nodemon server.mjs"
   },
   "keywords": [],
