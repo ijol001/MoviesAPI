@@ -89,12 +89,19 @@ app.put('/movie/:id', async (req, res) => {
 
 //delete operation using movie id
 app.delete('/movie/:id', async (req, res) => {
+
+    const ID = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(ID)) {
+        return res.status(400).json({ error: "Invalid movie ID" })
+    }
+
     try {
-        const deleteMovie = await movie.findByIdAndDelete(req.params.id);
+        const deleteMovie = await movie.findByIdAndDelete(ID);
         res.status(200).json(deleteMovie);
     }
     catch (error) {
         res.status(500).json({ message: error.message });
+        
     }
 })
 

@@ -137,7 +137,7 @@ describe('Movie api', () => {
 
     it('should return an 400 error while trying to update movie data with missing fields', async()=>{
         const createResponse = await request(app).post('/movie').send({
-            title: "Love Money",
+            title: "Blood Money",
             director: "Vishal Mahadkar",
             genre: "Action/Thriller",
             releaseYr: "2012"
@@ -152,5 +152,22 @@ describe('Movie api', () => {
         expect(response.body).toHaveProperty('error', "At least one field is required to update.");
         
     });
+
+    it('should delete movie using movie id', async()=>{
+        const createResponse = await request(app).post('/movie').send({
+            title: "Blood Money",
+            director: "Vishal Mahadkar",
+            genre: "Action/Thriller",
+            releaseYr: "2012"
+        });
+
+        expect(createResponse.status).toBe(201);
+        const movieId = createResponse.body._id;
+
+        const response = await request(app).delete(`/movie/${movieId}`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.message).toBe('Movie deleted');
+    })
 
 }); 
