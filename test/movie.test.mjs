@@ -126,7 +126,7 @@ describe('Movie api', () => {
         });
 
         const invalidId = "13bhou3kh3oiue908efih";
-        const response = await request(app).get(`/movie/${invalidId}`).send({
+        const response = await request(app).put(`/movie/${invalidId}`).send({
             title: "Blood Money"
         });
 
@@ -164,10 +164,26 @@ describe('Movie api', () => {
         expect(createResponse.status).toBe(201);
         const movieId = createResponse.body._id;
 
-        const response = await request(app).delete(`/movie/${movieId}`);
+        const response = await request(app).delete(`/movie/${movieId}`).send();
 
         expect(response.statusCode).toBe(200);
-        expect(response.body.message).toBe('Movie deleted');
-    })
+        expect(response.body.error).toBe('movie deleted');
+    });
+
+    it('should return an 400 error while trying to delete a movie using invalid movie id', async()=>{
+        await request(app).post('/movie').send({
+            title: "Blood Money",
+            director: "Vishal Mahadkar",
+            genre: "Action/Thriller",
+            releaseYr: "2012"
+        });
+
+        const invalidId = "13bhou3kh3oiue908efih";
+        const response = await request(app).delete(`/movie/${invalidId}`).send();
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body).toHaveProperty('error',"Invalid movie ID");
+        
+    });
 
 }); 
