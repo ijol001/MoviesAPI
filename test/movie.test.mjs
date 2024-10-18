@@ -2,12 +2,12 @@ import app from '../index.mjs';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import movie from '../model/movie.mjs';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '/.env' });
 
 beforeAll(async () => {
-    mongoose.connect('mongodb+srv://daisysarma20:WZqayT7Twe9hjPDP@cluster0.juzlr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
+    mongoose.connect(process.env.DB_URL);
 });
 
 beforeEach(async () => {
@@ -81,7 +81,7 @@ describe('Movie api', () => {
 
     }, 5000);
 
-    it('should return 400 error for invalid movie id', async()=>{
+    it('should return 400 error for invalid movie id', async () => {
         await request(app).post('/movie').send({
             title: "Asian Island",
             director: "Martin Scorsese",
@@ -94,7 +94,7 @@ describe('Movie api', () => {
         const response = await request(app).get(`/movie/${invalidID}`);
 
         expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty('error',"Invalid movie ID")
+        expect(response.body).toHaveProperty('error', "Invalid movie ID")
     });
 
     it('should update a movie by movie id', async () => {
@@ -117,7 +117,7 @@ describe('Movie api', () => {
         expect(response.body.title).toBe("Blood Money");
     });
 
-    it('should return an 400 error while trying to update movie data using invalid movie id', async()=>{
+    it('should return an 400 error while trying to update movie data using invalid movie id', async () => {
         await request(app).post('/movie').send({
             title: "Love Money",
             director: "Vishal Mahadkar",
@@ -131,11 +131,11 @@ describe('Movie api', () => {
         });
 
         expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty('error',"Invalid movie ID");
-        
+        expect(response.body).toHaveProperty('error', "Invalid movie ID");
+
     });
 
-    it('should return an 400 error while trying to update movie data with missing fields', async()=>{
+    it('should return an 400 error while trying to update movie data with missing fields', async () => {
         const createResponse = await request(app).post('/movie').send({
             title: "Blood Money",
             director: "Vishal Mahadkar",
@@ -150,10 +150,10 @@ describe('Movie api', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.body).toHaveProperty('error', "At least one field is required to update.");
-        
+
     });
 
-    it('should delete movie using movie id', async()=>{
+    it('should delete movie using movie id', async () => {
         const createResponse = await request(app).post('/movie').send({
             title: "Blood Money",
             director: "Vishal Mahadkar",
@@ -170,7 +170,7 @@ describe('Movie api', () => {
         expect(response.body.error).toBe('movie deleted');
     });
 
-    it('should return an 400 error while trying to delete a movie using invalid movie id', async()=>{
+    it('should return an 400 error while trying to delete a movie using invalid movie id', async () => {
         await request(app).post('/movie').send({
             title: "Blood Money",
             director: "Vishal Mahadkar",
@@ -182,8 +182,15 @@ describe('Movie api', () => {
         const response = await request(app).delete(`/movie/${invalidId}`).send();
 
         expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty('error',"Invalid movie ID");
-        
+        expect(response.body).toHaveProperty('error', "Invalid movie ID");
+
     });
+
+    it('should return 404 non- existence routes', async () => {
+        const response = await request(app).get('/routes');
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toHaveProperty('error', "Routes not found");
+    });
+
 
 }); 

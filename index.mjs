@@ -4,6 +4,7 @@ import movie from './model/movie.mjs';
 import cors from 'cors';
 import mongoose from 'mongoose';
 
+
 const app = express();
 
 app.use(express.json());
@@ -11,9 +12,6 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
-
-
-
 
 //Create a new movie
 app.post('/movie', async (req, res) => {
@@ -85,8 +83,6 @@ app.put('/movie/:id', async (req, res) => {
     }
 })
 
-
-
 //delete operation using movie id
 app.delete('/movie/:id', async (req, res) => {
 
@@ -97,19 +93,22 @@ app.delete('/movie/:id', async (req, res) => {
 
     try {
         const deleteMovie = await movie.findByIdAndDelete(ID);
-        if(deleteMovie){
+        if (deleteMovie) {
             return res.status(200).json({ error: "movie deleted" });
         }
-        else{
+        else {
             return res.status(400).json({ error: "movie not found" });
         }
     }
     catch (error) {
         res.status(500).json({ message: error.message });
-        
-    }
-})
 
+    }
+});
+
+app.use((req, res) => {
+    res.status(404).json({ error: "Routes not found" });
+});
 
 export default app;
 
